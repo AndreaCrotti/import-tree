@@ -1,11 +1,10 @@
 import argparse
 import sys
 
-from imp import load_module, find_module
 from inspect import stack, getmodulename
 from os import path
 
-from pygraphviz import Edge, AGraph
+from pygraphviz import AGraph
 
 
 class ImportGraph(object):
@@ -22,6 +21,7 @@ class ImportGraph(object):
 
 
     def write_graph(self, output):
+        #TODO: pdf seems to handle better big size
         output = output + '.png'
         print("writing to {0}".format(output))
         self.tree.draw(output, format='png', prog='dot')
