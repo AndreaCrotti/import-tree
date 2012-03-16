@@ -1,4 +1,6 @@
 import argparse
+
+from os import path
 from sys import meta_path
 
 from pygraphviz import Edge, Node, AGraph
@@ -14,7 +16,7 @@ class ImportGraph(object):
 
     def find_module(self, module_name, package=None):
         print("requesting %s" % module_name)
-        self.tree.add_node(ns.module_name)
+        self.tree.add_node(module_name)
 
     def write_graph(self, output):
         self.tree.draw(output+'.png', format='png')
@@ -33,7 +35,7 @@ def main():
     im = ImportGraph()
     meta_path.append(im)
 
-    __import__(ns.module)
+    __import__(path.splitext(ns.module)[0])
     meta_path.remove(im)
     im.write_graph(ns.module)
 
