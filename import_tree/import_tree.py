@@ -10,41 +10,57 @@ from os import path
 
 from pygraphviz import AGraph
 
+def get_caller_mod():
+    return getmodulename(stack()[1][1])
 
-class ImportGraph:
 
-    def __init__(self, full):
+class Grapher:
+    def __init__(self):
         self.tree = AGraph(directed=True)
-        self.full = full
 
-    def find_module(self, module_name, package=None):
-        caller_mod = getmodulename(stack()[1][1])
-        if getmodulename(__file__) != caller_mod:
-            print("adding {0}".format(str([caller_mod, module_name])))
-            self.tree.add_edge(caller_mod, module_name)
+    def add_edge(self, a, b):
+        self.tree.add_edge(a, b)
 
-
-    def write_graph(self, output):
+    def write(self, output):
         #TODO: pdf seems to handle better big size
         output = output + '.png'
         print("writing to {0}".format(output))
         self.tree.draw(output, format='png', prog='dot')
 
 
+class ImportGraph:
+
+    def __init__(self, full):
+        self.full = full
+        self.graph = Grapher()
+
+    def find_module(self, module_name, package=None):
+        caller_mod = get_caller_mod()
+        if getmodulename(__file__) != caller_mod:
+            print("adding {0}".format(str([caller_mod, module_name])))
+            self.graph.add_edge(caller_mod, module_name)
+
+
+    def write_graph(self, output):
+        self.graph.write(output)
+
 class ImportMock:
 
+    def __init__(self):
+        self.graph = Grapher()
+
     def _my_import(self, *args, **kwargs):
-        self.ls.append(args[0])
+        self.graph.add_edge(get_caller_mod(), args[0])
         self.orig(*args, **kwargs)
 
     def __enter__(self):
         self.orig = __builtin__.__import__
-        self.ls = []
         __builtin__.__import__ = self._my_import
         return self
 
     def __exit__(self, type, value, traceback):
         __builtin__.__import__ = self.orig
+        self.graph.write("x.png")
 
 
 def parse_arguments():
@@ -60,6 +76,7 @@ def parse_arguments():
 
     return parser.parse_args()
 
+
 def main():
     ns = parse_arguments()
     module = path.splitext(ns.module)[0]
@@ -68,7 +85,6 @@ def main():
     if ns.full:
         with ImportMock() as i:
             __import__(module)
-            print(i.ls)
     else:
         im = ImportGraph(full=ns.full)
         sys.meta_path.append(im)
