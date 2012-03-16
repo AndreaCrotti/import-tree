@@ -14,20 +14,12 @@ class ImportGraph(object):
         self.tree = AGraph(directed=True)
         self.full = full
 
-    def load_module(self, module_name):
-        v = find_module(module_name)
-        return load_module(module_name, *v)
-
     def find_module(self, module_name, package=None):
-        if module_name in sys.modules:
-            del sys.modules[module_name]
         caller_mod = getmodulename(stack()[1][1])
         if getmodulename(__file__) != caller_mod:
             print("adding {0}".format(str([caller_mod, module_name])))
-            self.tree.add_edge(unicode(caller_mod), unicode(module_name))
+            self.tree.add_edge(caller_mod, module_name)
 
-        if module_name in self.tree.nodes():
-            return self
 
     def write_graph(self, output):
         output = output + '.png'
