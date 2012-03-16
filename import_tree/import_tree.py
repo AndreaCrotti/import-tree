@@ -1,3 +1,7 @@
+__metaclass__ = type
+
+import __builtin__
+
 import argparse
 import sys
 
@@ -7,7 +11,7 @@ from os import path
 from pygraphviz import AGraph
 
 
-class ImportGraph(object):
+class ImportGraph:
 
     def __init__(self, full):
         self.tree = AGraph(directed=True)
@@ -27,6 +31,22 @@ class ImportGraph(object):
         self.tree.draw(output, format='png', prog='dot')
 
 
+class ImportMock:
+
+    def _my_import(self, *args, **kwargs):
+        self.ls.append(args[0])
+        self.orig(*args, **kwargs)
+
+    def __enter__(self):
+        self.orig = __builtin__.__import__
+        self.ls = []
+        __builtin__.__import__ = self._my_import
+        return self
+
+    def __exit__(self, type, value, traceback):
+        __builtin__.__import__ = self.orig
+
+
 def parse_arguments():
     parser = argparse.ArgumentParser(description='generate the tree of imports')
 
@@ -42,10 +62,16 @@ def parse_arguments():
 
 def main():
     ns = parse_arguments()
+    module = path.splitext(ns.module)[0]
     sys.path.append(path.dirname(ns.module))
-
-    im = ImportGraph(full=ns.full)
-    sys.meta_path.append(im)
-    __import__(path.splitext(ns.module)[0])
-    sys.meta_path.remove(im)
-    im.write_graph(ns.module)
+    
+    if ns.full:
+        with ImportMock() as i:
+            __import__(module)
+            print(i.ls)
+    else:
+        im = ImportGraph(full=ns.full)
+        sys.meta_path.append(im)
+        __import__(module)
+        sys.meta_path.remove(im)
+        im.write_graph(ns.module)
