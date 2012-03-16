@@ -14,15 +14,17 @@ class ImportGraph(object):
 
     def __init__(self):
         self.tree = AGraph(directed=True)
-        self.tree.layout(prog='dot')
 
     def find_module(self, module_name, package=None):
         caller_mod = getmodulename(stack()[1][1])
-        print("adding {0}".format(str([caller_mod, module_name])))
-        self.tree.add_edge((caller_mod, module_name))
+        if getmodulename(__file__) != caller_mod:
+            print("adding {0}".format(str([caller_mod, module_name])))
+            self.tree.add_edge(unicode(caller_mod), unicode(module_name))
 
     def write_graph(self, output):
-        self.tree.draw(output+'.png', format='png')
+        output = output + '.png'
+        print("writing to {0}".format(output))
+        self.tree.draw(output, format='png', prog='dot')
 
 
 def parse_arguments():
