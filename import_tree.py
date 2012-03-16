@@ -1,9 +1,10 @@
 import argparse
 import sys
 
+from inspect import stack, getmodulename
 from os import path
 
-from pygraphviz import Edge, Node, AGraph
+from pygraphviz import Edge, AGraph
 
 
 class ImportGraph(object):
@@ -16,8 +17,9 @@ class ImportGraph(object):
         self.tree.layout(prog='dot')
 
     def find_module(self, module_name, package=None):
-        print("requesting %s" % module_name)
-        self.tree.add_edge((__file__, module_name))
+        caller_mod = getmodulename(stack()[1][1])
+        print("adding {0}".format(str([caller_mod, module_name])))
+        self.tree.add_edge((caller_mod, module_name))
 
     def write_graph(self, output):
         self.tree.draw(output+'.png', format='png')
