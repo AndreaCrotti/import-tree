@@ -1,7 +1,7 @@
 import argparse
+import sys
 
 from os import path
-from sys import meta_path
 
 from pygraphviz import Edge, Node, AGraph
 
@@ -33,11 +33,12 @@ def parse_arguments():
 
 def main():
     ns = parse_arguments()
-    im = ImportGraph()
-    meta_path.append(im)
+    sys.path.append(path.dirname(ns.module))
 
+    im = ImportGraph()
+    sys.meta_path.append(im)
     __import__(path.splitext(ns.module)[0])
-    meta_path.remove(im)
+    sys.meta_path.remove(im)
     im.write_graph(ns.module)
 
 if __name__ == '__main__':
