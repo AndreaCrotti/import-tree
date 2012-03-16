@@ -1,3 +1,4 @@
+import argparse
 from sys import meta_path
 
 from pygraphviz import Edge, Node, AGraph
@@ -13,11 +14,10 @@ class ImportGraph(object):
 
     def find_module(self, module_name, package=None):
         print("requesting %s" % module_name)
-        n = Node(module_name)
-        self.tree.add_node(n)
+        self.tree.add_node(ns.module_name)
 
     def write_graph(self, output):
-        self.tree.draw(output, format='png')
+        self.tree.draw(output+'.png', format='png')
 
 
 def parse_arguments():
