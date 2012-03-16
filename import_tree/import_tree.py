@@ -8,12 +8,10 @@ from pygraphviz import Edge, AGraph
 
 
 class ImportGraph(object):
-    """
-    Loader object
-    """
 
-    def __init__(self):
+    def __init__(self, full):
         self.tree = AGraph(directed=True)
+        self.full = full
 
     def find_module(self, module_name, package=None):
         caller_mod = getmodulename(stack()[1][1])
@@ -33,17 +31,18 @@ def parse_arguments():
     parser.add_argument('module',
                         help='entry point module')
 
+    parser.add_argument('-f', '--full',
+                        help='clear sys.modules every time, showing the entire graph')
+
+
     return parser.parse_args()
 
 def main():
     ns = parse_arguments()
     sys.path.append(path.dirname(ns.module))
 
-    im = ImportGraph()
+    im = ImportGraph(full=ns.full)
     sys.meta_path.append(im)
     __import__(path.splitext(ns.module)[0])
     sys.meta_path.remove(im)
     im.write_graph(ns.module)
-
-if __name__ == '__main__':
-    main()
