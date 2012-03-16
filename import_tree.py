@@ -13,10 +13,11 @@ class ImportGraph(object):
 
     def __init__(self):
         self.tree = AGraph(directed=True)
+        self.tree.layout(prog='dot')
 
     def find_module(self, module_name, package=None):
         print("requesting %s" % module_name)
-        self.tree.add_node(module_name)
+        self.tree.add_edge((__file__, module_name))
 
     def write_graph(self, output):
         self.tree.draw(output+'.png', format='png')
