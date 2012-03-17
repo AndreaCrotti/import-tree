@@ -1,4 +1,9 @@
 __metaclass__ = type
+__all__ = [
+    'ImportGraph',
+    'ImportMock',
+    'main',
+]
 
 import __builtin__
 
@@ -43,6 +48,7 @@ class ImportGraph:
 
     def write_graph(self, output):
         self.graph.write(output)
+
 
 class ImportMock:
 
