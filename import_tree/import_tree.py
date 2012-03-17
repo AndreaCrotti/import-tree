@@ -50,8 +50,9 @@ class ImportMock:
         self.graph = Grapher()
 
     def _my_import(self, *args, **kwargs):
-        self.graph.add_edge(get_caller_mod(), args[0])
-        self.orig(*args, **kwargs)
+        found = self.orig(*args, **kwargs)
+        self.graph.add_edge(get_caller_mod(), found.__name__)
+        return found
 
     def __enter__(self):
         self.orig = __builtin__.__import__
