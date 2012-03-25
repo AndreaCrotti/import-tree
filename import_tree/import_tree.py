@@ -66,8 +66,7 @@ class GraphvizGrapher:
 
 class ImportGraph:
 
-    def __init__(self, full):
-        self.full = full
+    def __init__(self):
         if PYGRAPHVIZ:
             self.graph = GraphvizGrapher()
         else:
@@ -104,6 +103,7 @@ class ImportMock:
         self.graph.write("x.png")
 
 
+
 def parse_arguments():
     parser = argparse.ArgumentParser(description='generate the tree of imports')
 
@@ -124,7 +124,7 @@ def main():
     sys.path.append(path.dirname(ns.module))
     
     if ns.full:
-        with ImportMock() as i:
+        with ImportMock():
             __import__(module)
     else:
         im = ImportGraph(full=ns.full)
