@@ -1,9 +1,19 @@
 __metaclass__ = type
+
 __all__ = [
     'ImportGraph',
     'ImportMock',
     'main',
 ]
+
+
+try:
+    import pygraphviz
+except ImportError:
+    print('fancy graph not available')
+    PYGRAPHVIZ = False
+else:
+    PYGRAPHVIZ = True
 
 import __builtin__
 
@@ -13,15 +23,36 @@ import sys
 from inspect import stack, getmodulename
 from os import path
 
-from pygraphviz import AGraph
 
 def get_caller_mod():
     return getmodulename(stack()[1][1])
 
 
 class Grapher:
+    def add_edge(self, a, b): pass
+
+    def write(self, output): pass
+
+
+class ConsoleGrapher(Grapher):
     def __init__(self):
-        self.tree = AGraph(directed=True)
+        self.tree = {}
+
+    def __str__(self):
+        # format the tree from CLI
+        pass
+
+    def add_edge(self, a, b):
+        pass
+
+    def write(self, output):
+        with open(output, 'w') as out:
+            out.write(str(self))
+
+
+class GraphvizGrapher:
+    def __init__(self):
+        self.tree = pygraphviz.AGraph(directed=True)
 
     def add_edge(self, a, b):
         self.tree.add_edge(a, b)
@@ -37,7 +68,10 @@ class ImportGraph:
 
     def __init__(self, full):
         self.full = full
-        self.graph = Grapher()
+        if PYGRAPHVIZ:
+            self.graph = GraphvizGrapher()
+        else:
+            self.graph = ConsoleGrapher()
 
     def find_module(self, module_name, package=None):
         caller_mod = get_caller_mod()
