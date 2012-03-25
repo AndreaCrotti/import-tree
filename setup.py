@@ -10,6 +10,8 @@ entry_points = {
 
 setup(
     name="import_tree",
+    author="Andrea Crotti",
+    author_email="andrea.crotti.0gmail.com",
     version=version,
     packages=['import_tree'],
     install_requires=['pygraphviz'],
