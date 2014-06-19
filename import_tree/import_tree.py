@@ -1,12 +1,3 @@
-__metaclass__ = type
-
-__all__ = [
-    'ImportGraph',
-    'ImportMock',
-    'main',
-]
-
-
 try:
     import pygraphviz
 except ImportError:
@@ -28,7 +19,7 @@ def get_caller_mod():
     return getmodulename(stack()[1][1])
 
 
-class Grapher:
+class Grapher(object):
     def add_edge(self, a, b): pass
 
     def write(self, output): pass
@@ -50,7 +41,7 @@ class ConsoleGrapher(Grapher):
             out.write(str(self))
 
 
-class GraphvizGrapher:
+class GraphvizGrapher(object):
     def __init__(self):
         self.tree = pygraphviz.AGraph(directed=True)
 
@@ -64,8 +55,7 @@ class GraphvizGrapher:
         self.tree.draw(output, format='png', prog='dot')
 
 
-class ImportGraph:
-
+class ImportGraph(object):
     def __init__(self):
         if PYGRAPHVIZ:
             self.graph = GraphvizGrapher()
@@ -77,7 +67,6 @@ class ImportGraph:
         if getmodulename(__file__) != caller_mod:
             print("adding {0}".format(str([caller_mod, module_name])))
             self.graph.add_edge(caller_mod, module_name)
-
 
     def write_graph(self, output):
         self.graph.write(output)
@@ -103,7 +92,6 @@ class ImportMock:
         self.graph.write("x.png")
 
 
-
 def parse_arguments():
     parser = argparse.ArgumentParser(description='generate the tree of imports')
 
@@ -114,7 +102,6 @@ def parse_arguments():
                         action='store_true',
                         help='clear sys.modules every time, showing the entire graph')
 
-
     return parser.parse_args()
 
 
@@ -122,7 +109,8 @@ def main():
     ns = parse_arguments()
     module = path.splitext(ns.module)[0]
     sys.path.append(path.dirname(ns.module))
-    
+    #TODO: use importlib if it works on all required versions
+
     if ns.full:
         with ImportMock():
             __import__(module)
