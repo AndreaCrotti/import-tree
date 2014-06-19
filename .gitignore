@@ -1,1 +1,3 @@
 .tox
+/import_tree.egg-info/
+*.pyc

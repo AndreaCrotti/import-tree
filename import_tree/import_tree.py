@@ -1,7 +1,7 @@
 try:
     import pygraphviz
 except ImportError:
-    print('fancy graph not available')
+    print('fancy graph not available, please install pygraphviz if you want them')
     PYGRAPHVIZ = False
 else:
     PYGRAPHVIZ = True
@@ -20,9 +20,11 @@ def get_caller_mod():
 
 
 class Grapher(object):
-    def add_edge(self, a, b): pass
+    def add_edge(self, a, b):
+        pass
 
-    def write(self, output): pass
+    def write(self, output):
+        pass
 
 
 class ConsoleGrapher(Grapher):
@@ -49,7 +51,7 @@ class GraphvizGrapher(object):
         self.tree.add_edge(a, b)
 
     def write(self, output):
-        #TODO: pdf seems to handle better big size
+        # TODO: pdf seems to handle better big size
         output = output + '.png'
         print("writing to {0}".format(output))
         self.tree.draw(output, format='png', prog='dot')
@@ -72,8 +74,7 @@ class ImportGraph(object):
         self.graph.write(output)
 
 
-class ImportMock:
-
+class ImportMock(object):
     def __init__(self):
         self.graph = Grapher()
 
@@ -109,14 +110,17 @@ def main():
     ns = parse_arguments()
     module = path.splitext(ns.module)[0]
     sys.path.append(path.dirname(ns.module))
-    #TODO: use importlib if it works on all required versions
-
     if ns.full:
         with ImportMock():
             __import__(module)
     else:
-        im = ImportGraph(full=ns.full)
+        im = ImportGraph()
         sys.meta_path.append(im)
         __import__(module)
         sys.meta_path.remove(im)
         im.write_graph(ns.module)
+
+
+# TODO: make this a script instead
+if __name__ == '__main__':
+    main()
